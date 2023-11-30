@@ -11,7 +11,10 @@ int main()
     sf::RenderWindow window(sf::VideoMode(800, 600), "My window");
     sf::RectangleShape paddle = drawPaddle();
     sf::CircleShape ball = drawBall();
-    std::vector<sf::RectangleShape> bricks = drawBricks();
+    Brick brickShape(50, 50, 70, 20, sf::Color(100, 250, 50));
+    Brick brickShapeTwo(50, 10, 70, 20, sf::Color(100, 250, 50));
+    std::vector<sf::RectangleShape> firstBricksArr = drawBricks(brickShape);
+    std::vector<sf::RectangleShape> secondBricksArr = drawBricks(brickShapeTwo);
     // run the program as long as the window is open
     while (window.isOpen())
     {
@@ -36,8 +39,9 @@ int main()
         window.clear();
         window.draw(paddle);
         //draw each brick in the bricks array
-        for (int i = 0; i < 5; i++) {
-            window.draw(bricks[i]);
+        for (int i = 0; i < 9; i++) {
+            window.draw(firstBricksArr[i]);
+            window.draw(secondBricksArr[i]);
         }
         window.draw(ball);
 
