@@ -10,13 +10,11 @@ Brick::Brick(float x, float y, int width, int height, sf::Color color) {
 
 
 //function for drawing bricks
-std::vector<sf::RectangleShape> drawBricks() {
-	//create a new Brick called brickshape
-	Brick brickShape(50, 50, 70, 40,sf::Color(100, 250, 50));
+std::vector<sf::RectangleShape> drawBricks(Brick brickShape) {
 	//create array of bricks of type RectangleShape
 	std::vector<sf::RectangleShape> bricksArr;
 	//create five new bricks and add them to the bricks array
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 9; i++) {
 		sf::RectangleShape newBrick;
 		newBrick.setFillColor(brickShape.color);
 		newBrick.setPosition(sf::Vector2f(brickShape.x + (i * (brickShape.width+10.f)), brickShape.y));
