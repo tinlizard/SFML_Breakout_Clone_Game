@@ -9,4 +9,4 @@ class Brick {
 		int width, height;
 		sf::Color color;
 };
-std::vector<sf::RectangleShape> drawBricks();
+std::vector<sf::RectangleShape> drawBricks(Brick brickShape);
