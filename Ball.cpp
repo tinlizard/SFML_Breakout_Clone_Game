@@ -1,33 +1,87 @@
 #include "Ball.h"
-
-
-Ball::Ball(float x, float y,float radius, sf::Color color,float ballOffsetX, float ballOffsetY) {
+//constructor for ball
+using RectangleShapeVector = std::vector<sf::RectangleShape>;
+Ball::Ball(float x, float y,float radius, sf::Color color,float ballOffsetX, float ballOffsetY, sf::CircleShape ball) {
 	this->radius = radius;
 	this->color = color;
     this->x = x;
     this->y = y;
     this->ballOffsetX = ballOffsetX;
     this->ballOffsetY = ballOffsetY;
+    this->ball = ball;
+    this->hasCollidedWithWall = false;
 }
 
-//function for drawing ball
-sf::CircleShape drawBall(const Ball& ballShape) {
-    sf::CircleShape ball(ballShape.radius);
-    ball.setFillColor(ballShape.color);
-    ball.setPosition(sf::Vector2f(ballShape.x, ballShape.y));
+//method for drawing ball
+sf::CircleShape Ball::drawBall() {
+    this->ball.setRadius(this->radius);
+    this->ball.setFillColor(this->color);
+    this->ball.setPosition(sf::Vector2f(this->x, this->y));
     return ball;
 }
 
-void reverseDirection(float& ballOffsetX, float& ballOffsetY) {
-    ballOffsetX = -ballOffsetX;
-    ballOffsetY = -ballOffsetY;
+//method for reversing direction 
+void Ball::reverseDirection() {
+    this->ballOffsetY = -this->ballOffsetY;
+    this->checkWallCollision();
+    if (this->hasCollidedWithWall) {
+        this->ballOffsetX = -this->ballOffsetX;
+        this->hasCollidedWithWall = false;
+    }
 }
 
-void checkCollisionWithPaddle(sf::RectangleShape& paddle, sf::CircleShape& ball, float& ballOffsetX, float& ballOffsetY) {
-    if (ball.getGlobalBounds().intersects(paddle.getGlobalBounds())) {
-        int currentX = ball.getPosition().x;
-        int currentY = ball.getPosition().y;
-        ball.setPosition(currentX-20,currentY-20);
-        reverseDirection(ballOffsetX, ballOffsetY);
+//method for checking collision with paddle
+void Ball::checkCollisionWithPaddle(const sf::RectangleShape& paddle) {
+    float currentX = this->ball.getPosition().x;
+    float currentY = this->ball.getPosition().y;
+    if (this->ball.getGlobalBounds().intersects(paddle.getGlobalBounds())) {
+        this->ball.setPosition(currentX-20,currentY-20);
+        this->reverseDirection();
+    }
+}
+
+//method for checking for collision between ball and bricks
+void Ball::checkCollisionWithBricks(std::vector<RectangleShapeVector>& bricksArray, int& score) {
+        for (auto& brickVec : bricksArray) {
+            for (auto& brick : brickVec) {
+                if (this->ball.getGlobalBounds().intersects(brick.getGlobalBounds()) && (brick.getFillColor() == sf::Color(100, 250, 50))) {
+                    brick.setFillColor(sf::Color::Black);
+                    score++; 
+                    this->reverseDirection(); 
+                }
+            }
+        }
+}
+
+//check if the ball is off the screen and reset its position if it is
+void Ball::checkBallOffScreen(std::vector<RectangleShapeVector>& bricksArray, int& score, int& lives) {
+    float currentY = this->ball.getPosition().y;
+    bool isOffscreen = false;
+    for (auto& brickVec : bricksArray) {
+        for (auto& brick : brickVec) {
+            if (currentY < 0 || currentY > 600) {
+                if(brick.getFillColor()!=sf::Color(100,250,50))
+                    brick.setFillColor(sf::Color(100, 250, 50));
+                    
+                this->ball.setPosition(sf::Vector2f(this->x, this->y));   
+                isOffscreen = true;
+            }
+        }
+    }
+    if (isOffscreen) {
+        lives--; 
+        if (lives == 0) {
+            score = 0;
+            lives = 3; 
+        }
+        isOffscreen = false;
+    }
+}
+
+bool Ball::checkWallCollision() {
+    float currentX = this->ball.getPosition().x;
+    if (currentX <= 0 || currentX > 700) {
+        this->hasCollidedWithWall = true;
+        return this->hasCollidedWithWall; 
     }
 }
