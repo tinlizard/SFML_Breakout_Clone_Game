@@ -1,7 +1,6 @@
 #include "Ball.h"
 #include "Bricks.h"
 #include "Paddle.h"
-#include "Bricks.h"
 
 using RectangleShapeVector = std::vector<sf::RectangleShape>;
 
