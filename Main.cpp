@@ -3,26 +3,53 @@
 #include "Paddle.h"
 #include "Bricks.h"
 
+using RectangleShapeVector = std::vector<sf::RectangleShape>;
+
+void initText(sf::Text& text, sf::Font& font, int x, int y);
+
 int main()
 {
     // create the window
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Breakout");
+    constexpr int screenWidth = 800;
+    constexpr int screenHeight = 600;
+    int score = 0;
+    int lives = 3;
+
+    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "Breakout");
+
     sf::RectangleShape paddle = drawPaddle();
-    Ball ballShape(400, 300, 10.f, sf::Color(100, 250, 50),0.05f,0.05f);
-    sf::CircleShape ball = drawBall(ballShape);
-    Brick brickShape(5, 50, 70, 20, sf::Color(100, 250, 50));
-    Brick brickShapeTwo(5, 10, 70, 20, sf::Color(100, 250, 50));
-    Brick brickShapeThree(5, 90, 70, 20, sf::Color(100, 250, 50));
-    Brick brickShapeFour(5, 130, 70, 20, sf::Color(100, 250, 50));
-    std::vector<sf::RectangleShape> firstBricksArr = drawBricks(brickShape);
-    std::vector<sf::RectangleShape> secondBricksArr = drawBricks(brickShapeTwo);
-    std::vector<sf::RectangleShape> thirdBricksArr = drawBricks(brickShapeThree);
-    std::vector<sf::RectangleShape> fourthBricksArr = drawBricks(brickShapeFour);
+    sf::CircleShape ball(10);
+    Ball ballShape(200, 250, 10.f, sf::Color(100, 250, 50),0.05f,0.05f,ball);
+    ballShape.ball.setPosition(sf::Vector2f(ballShape.x, ballShape.y));
+    ballShape.ball.setFillColor(ballShape.color); 
+
+    sf::Font font;
+    sf::Text scoreText;
+    sf::Text livesText;
+    if (!font.loadFromFile("C:\\Users\\willb\\OneDrive\\Documents\\arial-font\\arial.ttf")) {
+        std::cout << "Error loading font! \n";
+    }
+   initText(scoreText,font,5,20);
+   initText(livesText,font,700,20);
+
+    std::vector<Brick> bricks = { 
+        Brick(5, 50, 70, 20, sf::Color(100, 250, 50)), 
+        Brick(5, 90, 70, 20, sf::Color(100, 250, 50)),  
+        Brick(5, 130, 70, 20, sf::Color(100, 250, 50)),
+        Brick(5, 170, 70, 20, sf::Color(100, 250, 50))
+    };
+
+    //take a vector of RectangleShapes and create another vector out of that so that each bricksArr is kept inside one array
+    std::vector<RectangleShapeVector> bricksArrays = {}; 
+    std::vector<sf::RectangleShape>eachBrick = {};
+    for (auto& brick : bricks) {
+        bricksArrays.push_back(createBricks(brick));
+    }
     // run the program as long as the window is open
     while (window.isOpen())
     {
         // check all the window's events that were triggered since the last iteration of the loop
-        ball.move(ballShape.ballOffsetX,ballShape.ballOffsetY);
+        ballShape.ball.move(ballShape.ballOffsetX,ballShape.ballOffsetY);
         sf::Event event;
         while (window.pollEvent(event))
         {
@@ -41,18 +68,32 @@ int main()
 
         window.clear();
         window.draw(paddle);
-        //draw each brick in the bricks array
-        for (int i = 0; i < 10; i++) {
-            window.draw(firstBricksArr[i]);
-            window.draw(secondBricksArr[i]);
-            window.draw(thirdBricksArr[i]);
-            window.draw(fourthBricksArr[i]);
+        //draw each brick in each bricks array
+        for (auto& item : bricksArrays) {
+            for (int i = 0; i<10; i++) {
+                window.draw(item[i]);
+            }
         }
-        window.draw(ball);
-        checkCollisionWithPaddle(paddle, ball,ballShape.ballOffsetX,ballShape.ballOffsetY);
+        
+        window.draw(ballShape.ball);
+        ballShape.checkCollisionWithPaddle(paddle);
+        ballShape.checkCollisionWithBricks(bricksArrays,score);
+        ballShape.checkBallOffScreen(bricksArrays,score,lives); 
+        scoreText.setString(std::to_string(score));
+        livesText.setString(std::to_string(lives)); 
+        window.draw(scoreText);
+        window.draw(livesText);
         // end the current frame
         window.display();
     }
 
     return 0;
+}
+
+void initText(sf::Text& text, sf::Font& font, int x, int y) {
+    text.setFont(font);
+    text.setCharacterSize(24);
+    text.setFillColor(sf::Color::White);
+    text.setStyle(sf::Text::Bold);
+    text.setPosition(sf::Vector2f(x, y));
 }
