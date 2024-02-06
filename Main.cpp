@@ -79,6 +79,8 @@ int main()
         ballShape.checkCollisionWithPaddle(paddle);
         ballShape.checkCollisionWithBricks(bricksArrays,score);
         ballShape.checkBallOffScreen(bricksArrays,score,lives); 
+        ballShape.checkWallCollision();
+        ballShape.reverseOnWallHit();
         scoreText.setString(std::to_string(score));
         livesText.setString(std::to_string(lives)); 
         window.draw(scoreText);
