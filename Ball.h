@@ -13,9 +13,10 @@ class Ball {
 		sf::Color color;
 		sf::CircleShape ball;
 		sf::CircleShape drawBall();
-		void reverseDirection();
+		void reverseDirectionY();
 		void checkCollisionWithPaddle(const sf::RectangleShape& paddle);
 		void checkCollisionWithBricks(std::vector<std::vector<sf::RectangleShape>>& bricksArray, int& score);
 		void checkBallOffScreen(std::vector<std::vector<sf::RectangleShape>>& bricksArray, int& score, int& lives);
 		bool checkWallCollision();
+		void reverseOnWallHit();
 };
