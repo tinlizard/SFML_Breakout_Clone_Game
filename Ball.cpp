@@ -21,13 +21,8 @@ sf::CircleShape Ball::drawBall() {
 }
 
 //method for reversing direction 
-void Ball::reverseDirection() {
+void Ball::reverseDirectionY() {
     this->ballOffsetY = -this->ballOffsetY;
-    this->checkWallCollision();
-    if (this->hasCollidedWithWall) {
-        this->ballOffsetX = -this->ballOffsetX;
-        this->hasCollidedWithWall = false;
-    }
 }
 
 //method for checking collision with paddle
@@ -36,7 +31,7 @@ void Ball::checkCollisionWithPaddle(const sf::RectangleShape& paddle) {
     float currentY = this->ball.getPosition().y;
     if (this->ball.getGlobalBounds().intersects(paddle.getGlobalBounds())) {
         this->ball.setPosition(currentX-20,currentY-20);
-        this->reverseDirection();
+        this->reverseDirectionY();
     }
 }
 
@@ -47,7 +42,7 @@ void Ball::checkCollisionWithBricks(std::vector<RectangleShapeVector>& bricksArr
                 if (this->ball.getGlobalBounds().intersects(brick.getGlobalBounds()) && (brick.getFillColor() == sf::Color(100, 250, 50))) {
                     brick.setFillColor(sf::Color::Black);
                     score++; 
-                    this->reverseDirection(); 
+                    this->reverseDirectionY(); 
                 }
             }
         }
@@ -65,6 +60,7 @@ void Ball::checkBallOffScreen(std::vector<RectangleShapeVector>& bricksArray, in
                     
                 this->ball.setPosition(sf::Vector2f(this->x, this->y));   
                 isOffscreen = true;
+                this->ballOffsetX = 0.05f;
             }
         }
     }
@@ -80,8 +76,21 @@ void Ball::checkBallOffScreen(std::vector<RectangleShapeVector>& bricksArray, in
 
 bool Ball::checkWallCollision() {
     float currentX = this->ball.getPosition().x;
-    if (currentX <= 0 || currentX > 700) {
+    if (currentX <= 0 || currentX >= 800) {
         this->hasCollidedWithWall = true;
         return this->hasCollidedWithWall; 
+    }
+}
+
+void Ball::reverseOnWallHit() {
+    if (this->hasCollidedWithWall) {
+        this->ballOffsetX = -this->ballOffsetX;
+        if (this->ballOffsetX < 0) {
+            this->ballOffsetX -= 0.02f;
+        }
+        else if(this->ballOffsetX>0){
+            this->ballOffsetX += 0.02f;
+        }
+        this->hasCollidedWithWall = false;
     }
 }
